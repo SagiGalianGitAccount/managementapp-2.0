@@ -4,6 +4,8 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb')
 const cors = require('cors')
 app.use(cors())
 require("dotenv").config()
+// on heroku glacial savvahana 
+// something like that 
 
 const PORT = 3001 || process.env.PORT
 
