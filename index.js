@@ -27,6 +27,17 @@ app.get('/getStudents', (req, res) => {
         res.send("error occured !")
     })
 })
+app.get('/getApproval', (req, res) => {
+    collection.findOne({
+        _id: new ObjectId(req.query.managerId)
+    }).then(result => {
+        console.log(result.approval)
+        res.send(result.approval)
+    }).catch(err => {
+        console.error(err)
+        res.send("error occured !")
+    })
+})
 
 app.post('/deleteStudent', (req, res) => {
     const managerId = req.query.managerId
@@ -53,10 +64,6 @@ app.post('/updateStudentDetails', (req, res) => { // not working ? !
     const studentDad = req.query.dad   
     const studentId = req.query.studentId
     try{
-
-
-
-
         collection.updateOne(
             { _id: ObjectId(managerId) },
             { $set: { 
@@ -69,12 +76,6 @@ app.post('/updateStudentDetails', (req, res) => { // not working ? !
              } },
             { arrayFilters: [ { "elem.studentId": studentId } ] }
          )
-
-
-
-
-
-
         console.log(`Updated changes for ${studentName}, ${studentEmail}, id=${studentId}.`)
         res.send("successfuly Updated !")
     }catch(e){
@@ -83,6 +84,30 @@ app.post('/updateStudentDetails', (req, res) => { // not working ? !
     }
 })
 
+app.post('/update-approval', (req, res) => {
+    const managerId = req.query.managerId;
+    const newApproval = req.query.newApproval;
+  
+    try {
+      // Find the document by ID and update the approval field
+      collection.findOneAndUpdate(
+        { _id: ObjectId(managerId) },
+        { $set: { approval: newApproval } },
+        { returnOriginal: false },
+        (err, updatedDoc) => {
+          if (err) {
+            res.status(500).json({ success: false, error: err.message });
+          } else {
+            res.status(200).json({ success: true, data: updatedDoc });
+          }
+        }
+      );
+    } catch (err) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  
 app.get('/checkUser', (req, res) => {
     const name = req.query.name
     const password = req.query.password
@@ -146,7 +171,8 @@ app.post('/addUser', (req, res) => {
         collection.insertOne({
         name: name,
         password: password,
-        students: Array()
+        students: Array(),
+        approval: ""
     })}catch(e){
         console.error(err);
         res.send("Could not Insert the user... Error Occoured !")
